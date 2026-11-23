@@ -45,7 +45,7 @@ All samples are built on the OpenMaui.Controls.Linux platform, which brings .NET
 
 Before you begin, ensure you have the following installed on your Linux system:
 
-- **.NET 9.0 SDK** or later
+- **.NET 11 SDK** (11.0.100 or later)
 - **OpenMaui.Controls.Linux** package or source
 - **GTK 3** (for WebView support)
 - **WebKitGTK** (for WebViewDemo)
@@ -53,9 +53,18 @@ Before you begin, ensure you have the following installed on your Linux system:
 Install system dependencies on Ubuntu/Debian:
 
 ```bash
+# System libraries (GTK 3 + WebKitGTK for the WebView fallback)
 sudo apt-get update
-sudo apt-get install dotnet-sdk-9.0 libgtk-3-dev libwebkit2gtk-4.0-dev
+sudo apt-get install libgtk-3-dev libwebkit2gtk-4.1-dev
+
+# .NET 11 SDK (not in the distro repos yet)
+wget https://dot.net/v1/dotnet-install.sh
+chmod +x dotnet-install.sh
+./dotnet-install.sh --channel 11.0
 ```
+
+> On Arch Linux see [`ARCH-INSTALL.md`](./ARCH-INSTALL.md) for the `pacman`
+> package list and .NET 11 install steps.
 
 ### Installation
 
@@ -122,7 +131,7 @@ dotnet run
 Run from the compiled output:
 
 ```bash
-cd ShellDemo/bin/Debug/net9.0
+cd ShellDemo/bin/Debug/net11.0
 ./ShellDemo
 ```
 
@@ -374,7 +383,7 @@ dotnet new console -n MyLinuxApp
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net11.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -1056,7 +1065,7 @@ bool answer = await DisplayAlert(
 
 4. Check for missing dependencies:
    ```bash
-   ldd bin/Debug/net9.0/ShellDemo
+   ldd bin/Debug/net11.0/ShellDemo
    ```
 
 ### WebView not working
@@ -1067,7 +1076,7 @@ bool answer = await DisplayAlert(
 
 1. Verify WebKitGTK is installed:
    ```bash
-   sudo apt-get install libwebkit2gtk-4.0-dev
+   sudo apt-get install libwebkit2gtk-4.1-dev
    ```
 
 2. Ensure GTK mode is enabled in `Program.cs`:

@@ -64,9 +64,9 @@ Each sample directory also contains its own `README.md` with sample-specific det
 ## Requirements
 
 **Software:**
-- .NET 10.0 SDK or later
-- Linux with X11 display server (Wayland not yet supported)
-- Supported distributions: Ubuntu 20.04+, Fedora 35+, Debian 11+, or similar
+- .NET 11 SDK (11.0.100 or later)
+- Linux with X11 or Wayland
+- Supported distributions: Ubuntu 20.04+, Fedora 35+, Debian 11+, Arch Linux, or similar
 
 **System Dependencies:**
 ```bash
@@ -75,6 +75,9 @@ sudo apt-get install libfontconfig1-dev libfreetype6-dev
 
 # Fedora/RHEL
 sudo dnf install fontconfig-devel freetype-devel
+
+# Arch Linux
+sudo pacman -S --needed fontconfig freetype2 mesa harfbuzz
 
 # For WebView and BlazorWebView (WebViewDemo, BlazorDemo): WPE WebKit 2.54+
 sudo apt-get install libwpewebkit-2.0-1                        # Debian sid / Ubuntu
@@ -94,34 +97,41 @@ sudo dnf install gstreamer1-plugins-good gstreamer1-plugins-bad-free \
 #  replace with the nvdec plugin for NVIDIA. Software decode works without either.)
 ```
 
+> **Arch Linux:** [`ARCH-INSTALL.md`](./ARCH-INSTALL.md) has the complete `pacman`
+> package list, including WebView (WPE WebKit), MediaElement (GStreamer), and
+> printing (CUPS), plus .NET 11 install steps.
+
 ## Installation
 
 ### Clone the Repository
 
 ```bash
-git clone https://git.marketally.com/open-maui/maui-linux-samples.git
-cd maui-linux-samples
+git clone https://github.com/indoguy/maui-linux-samples-net11.git
+cd maui-linux-samples-net11
 ```
 
 ### Install .NET SDK
 
-If you don't have .NET 10.0 SDK installed:
+If you don't have the .NET 11 SDK installed:
 
 ```bash
-# Download and install .NET SDK
+# Download and install the .NET 11 SDK
 wget https://dot.net/v1/dotnet-install.sh
 chmod +x dotnet-install.sh
-./dotnet-install.sh --channel 10.0
+./dotnet-install.sh --channel 11.0
 
 # Add to PATH (add to ~/.bashrc for persistence)
 export DOTNET_ROOT=$HOME/.dotnet
 export PATH=$DOTNET_ROOT:$PATH
 ```
 
+> On Arch Linux the repositories currently ship .NET 10 only, so use the script
+> above — see [`ARCH-INSTALL.md`](./ARCH-INSTALL.md).
+
 ### Verify Installation
 
 ```bash
-dotnet --version  # Should show 10.0.x or later
+dotnet --version  # Should show 11.0.x or later
 ```
 
 ## Quick Start
@@ -193,7 +203,7 @@ Note: requires GStreamer 1.x + the plugin packages listed under System Dependenc
 # Build without running
 dotnet build
 
-# Output location: bin/Debug/net10.0/
+# Output location: bin/Debug/net11.0/
 ```
 
 ### Release Build
@@ -218,7 +228,7 @@ dotnet publish -c Release -r linux-arm64 --self-contained
 dotnet publish -c Release -r linux-x64 --no-self-contained
 ```
 
-Published applications will be in `bin/Release/net10.0/linux-x64/publish/` and can be distributed as standalone executables.
+Published applications will be in `bin/Release/net11.0/linux-x64/publish/` and can be distributed as standalone executables.
 
 ### Create Desktop Launcher
 
@@ -620,7 +630,7 @@ All samples use conditional compilation for cross-platform support:
 <!-- SampleApp.csproj -->
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>net11.0</TargetFramework>
     <OutputType>Exe</OutputType>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
@@ -637,7 +647,7 @@ All samples use conditional compilation for cross-platform support:
 
   <!-- CI/CD or standalone -->
   <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Linux')) AND !Exists('../../maui-linux/OpenMaui.Controls.Linux.csproj')">
-    <PackageReference Include="OpenMaui.Controls.Linux" Version="*" />
+    <PackageReference Include="OpenMaui.Controls.Linux" Version="11.0.10.2" />
   </ItemGroup>
 </Project>
 ```
@@ -660,13 +670,13 @@ dotnet new console -n MyApp
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>net11.0</TargetFramework>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <EnableDefaultXamlItems>true</EnableDefaultXamlItems>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="OpenMaui.Controls.Linux" Version="*" />
+    <PackageReference Include="OpenMaui.Controls.Linux" Version="11.0.10.2" />
   </ItemGroup>
 </Project>
 ```
