@@ -5,6 +5,7 @@ Sample applications demonstrating [OpenMaui Linux](https://github.com/open-maui/
 ## Table of Contents
 
 - [Overview](#overview)
+- [Documentation](#documentation)
 - [Sample Applications](#sample-applications)
 - [Requirements](#requirements)
 - [Installation](#installation)
@@ -36,6 +37,18 @@ This repository contains production-ready sample applications showcasing **OpenM
 - Navigation (NavigationPage, Shell, push/pop)
 - Data binding and MVVM patterns
 - Comprehensive control coverage
+
+## Documentation
+
+Additional guides live at the repository root:
+
+| Document | Description |
+|----------|-------------|
+| [GUIDE.md](./GUIDE.md) | Full user guide: prerequisites, building, running, and common workflows |
+| [NET11-MIGRATION.md](./NET11-MIGRATION.md) | What changed to move every sample from .NET 10 to .NET 11 (project files, package versions, API renames) |
+| [ARCH-INSTALL.md](./ARCH-INSTALL.md) | Installing the .NET 11 SDK and OpenMaui on Arch Linux, with the `pacman` package list and troubleshooting |
+
+Each sample directory also contains its own `README.md` with sample-specific details.
 
 ## Sample Applications
 
