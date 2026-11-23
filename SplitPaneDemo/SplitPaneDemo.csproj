@@ -1,0 +1,54 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net11.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
+    <!-- Application Info -->
+    <ApplicationTitle>OpenMaui Split Pane</ApplicationTitle>
+    <ApplicationId>com.openmaui.splitpanedemo</ApplicationId>
+    <ApplicationVersion>11.0.0</ApplicationVersion>
+    <Version>11.0.10</Version>
+
+    <!-- MAUI Settings (conditional based on platform) -->
+    <SingleProject>true</SingleProject>
+    <EnableDefaultXamlItems>true</EnableDefaultXamlItems>
+  </PropertyGroup>
+
+  <!-- Non-Linux platforms: Use official MAUI workload -->
+  <PropertyGroup Condition="!$([MSBuild]::IsOSPlatform('Linux'))">
+    <UseMaui>true</UseMaui>
+    <TargetFrameworks>net11.0-android;net11.0-ios;net11.0-maccatalyst;net11.0-windows10.0.19041.0</TargetFrameworks>
+  </PropertyGroup>
+
+  <!-- Linux: Use OpenMaui. OPENMAUI_LINUX gates the handful of platform
+       touches (the resize cursor on the divider) that only exist here. -->
+  <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
+    <RuntimeIdentifiers>linux-x64;linux-arm64</RuntimeIdentifiers>
+    <DefineConstants>$(DefineConstants);OPENMAUI_LINUX</DefineConstants>
+  </PropertyGroup>
+
+  <!-- OpenMaui Linux Platform - NuGet package -->
+  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
+    <PackageReference Include="OpenMaui.Controls.Linux" Version="11.0.10.2" />
+  </ItemGroup>
+
+  <!-- XAML Files -->
+  <ItemGroup>
+    <MauiXaml Update="**/*.xaml" />
+  </ItemGroup>
+
+  <!-- App Icon -->
+  <ItemGroup>
+    <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#FFFFFF" BackgroundColor="#2F6FEB" />
+  </ItemGroup>
+
+  <!-- Images -->
+  <ItemGroup>
+    <MauiImage Include="Resources\Images\*.svg" />
+  </ItemGroup>
+
+</Project>

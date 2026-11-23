@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:SplitPaneDemo"
+             x:Class="SplitPaneDemo.Pages.SplitPanePage"
+             Title="Split Pane Demo"
+             BackgroundColor="{AppThemeBinding Light={StaticResource PageBackgroundLight}, Dark={StaticResource PageBackgroundDark}}">
+
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <!-- ============================ Header ============================ -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" ColumnSpacing="14" Padding="22,16"
+              BackgroundColor="{AppThemeBinding Light={StaticResource HeaderBackgroundLight}, Dark={StaticResource HeaderBackgroundDark}}">
+            <VerticalStackLayout Grid.Column="0" Spacing="3" VerticalOptions="Center">
+                <Label Text="OpenMaui Split Pane"
+                       FontSize="25" FontAttributes="Bold"
+                       TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                <Label Text="Drag the vertical divider to resize the left and right panes"
+                       FontSize="15"
+                       TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+            </VerticalStackLayout>
+
+            <HorizontalStackLayout Grid.Column="1" Spacing="10" VerticalOptions="Center">
+                <Button Text="25%" Style="{StaticResource PresetButton}" Clicked="OnPreset25Clicked" />
+                <Button Text="50%" Style="{StaticResource PresetButton}" Clicked="OnPreset50Clicked" />
+                <Button Text="75%" Style="{StaticResource PresetButton}" Clicked="OnPreset75Clicked" />
+                <Button Text="Reset" Style="{StaticResource PresetButton}" Clicked="OnResetClicked" />
+                <ImageButton x:Name="ThemeToggleButton"
+                             Source="light_mode_white.svg"
+                             BackgroundColor="Transparent"
+                             WidthRequest="40" HeightRequest="40"
+                             Padding="0"
+                             Clicked="OnThemeToggleClicked" />
+            </HorizontalStackLayout>
+        </Grid>
+
+        <!-- ========================= Split area ========================== -->
+        <!-- Column 0 = left pane, column 1 = the draggable divider column,
+             column 2 = right pane (star, takes whatever is left). -->
+        <Grid Grid.Row="1"
+              x:Name="SplitGrid"
+              ColumnDefinitions="300,18,*"
+              ColumnSpacing="0">
+
+            <!-- ========================= LEFT pane ========================= -->
+            <Grid Grid.Column="0" RowDefinitions="Auto,*" RowSpacing="12" Padding="18,18,14,18"
+                  BackgroundColor="{AppThemeBinding Light={StaticResource LeftPaneBackgroundLight}, Dark={StaticResource LeftPaneBackgroundDark}}">
+                <Label Grid.Row="0" Text="MAILBOX" Style="{StaticResource PaneHeader}" Margin="4,0,0,0" />
+
+                <CollectionView Grid.Row="1"
+                                x:Name="FolderList"
+                                SelectionMode="Single"
+                                SelectionChanged="OnFolderSelectionChanged"
+                                VerticalOptions="Fill">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="local:Folder">
+                            <Grid Padding="0,4">
+                                <Border StrokeThickness="0" Padding="14,12"
+                                        BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#232323}">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="10" />
+                                    </Border.StrokeShape>
+                                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                        <BoxView Grid.Column="0" WidthRequest="5" HeightRequest="32" CornerRadius="2.5"
+                                                 Color="{Binding Accent}" VerticalOptions="Center" />
+                                        <Label Grid.Column="1" Text="{Binding Name}" FontSize="16"
+                                               LineBreakMode="TailTruncation" VerticalOptions="Center"
+                                               TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                                        <Label Grid.Column="2" Text="{Binding Count}" FontSize="14"
+                                               VerticalOptions="Center"
+                                               TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </Grid>
+
+            <!-- ========================= Divider ========================== -->
+            <!-- A thin column that owns the PanGestureRecognizer. This BoxView fills the
+                 whole column so a press anywhere on the divider, not just on the grab
+                 handle, starts the drag. -->
+            <BoxView Grid.Column="1"
+                     x:Name="Divider"
+                     Color="Transparent">
+                <BoxView.GestureRecognizers>
+                    <PanGestureRecognizer PanUpdated="OnDividerPanUpdated" />
+                </BoxView.GestureRecognizers>
+            </BoxView>
+
+            <!-- Divider chrome, painted over the hit target. All of it is InputTransparent
+                 so a press falls through to the Divider BoxView above and starts a pan. -->
+            <BoxView Grid.Column="1" InputTransparent="True"
+                     Color="{AppThemeBinding Light={StaticResource DividerGutterLight}, Dark={StaticResource DividerGutterDark}}" />
+            <BoxView Grid.Column="1" InputTransparent="True"
+                     WidthRequest="2" HorizontalOptions="Center"
+                     Color="{AppThemeBinding Light={StaticResource DividerLineLight}, Dark={StaticResource DividerLineDark}}" />
+            <BoxView Grid.Column="1" InputTransparent="True"
+                     WidthRequest="8" HeightRequest="60" CornerRadius="4"
+                     HorizontalOptions="Center" VerticalOptions="Center"
+                     Color="{AppThemeBinding Light={StaticResource DividerGripLight}, Dark={StaticResource DividerGripDark}}" />
+
+            <!-- ======================== RIGHT pane ======================== -->
+            <Grid Grid.Column="2"
+                  BackgroundColor="{AppThemeBinding Light={StaticResource RightPaneBackgroundLight}, Dark={StaticResource RightPaneBackgroundDark}}">
+                <ScrollView>
+                    <VerticalStackLayout Padding="28" Spacing="20">
+                        <VerticalStackLayout Spacing="6">
+                            <Label x:Name="DetailTitle" Text="Inbox" FontSize="30" FontAttributes="Bold"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                            <Label x:Name="DetailSubtitle" Text="" FontSize="16"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                        </VerticalStackLayout>
+
+                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="14" RowSpacing="14">
+                            <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource StatCard}">
+                                <VerticalStackLayout Spacing="6">
+                                    <Label Text="MESSAGES" Style="{StaticResource PaneHeader}" />
+                                    <Label x:Name="StatTotal" Text="0" FontSize="34" FontAttributes="Bold"
+                                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                                </VerticalStackLayout>
+                            </Border>
+                            <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource StatCard}">
+                                <VerticalStackLayout Spacing="6">
+                                    <Label Text="UNREAD" Style="{StaticResource PaneHeader}" />
+                                    <Label x:Name="StatUnread" Text="0" FontSize="34" FontAttributes="Bold"
+                                           TextColor="{StaticResource AccentColor}" />
+                                </VerticalStackLayout>
+                            </Border>
+                            <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource StatCard}">
+                                <VerticalStackLayout Spacing="6">
+                                    <Label Text="FLAGGED" Style="{StaticResource PaneHeader}" />
+                                    <Label x:Name="StatFlagged" Text="0" FontSize="34" FontAttributes="Bold"
+                                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                                </VerticalStackLayout>
+                            </Border>
+                            <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource StatCard}">
+                                <VerticalStackLayout Spacing="6">
+                                    <Label Text="ATTACHMENTS" Style="{StaticResource PaneHeader}" />
+                                    <Label x:Name="StatAttachments" Text="0" FontSize="34" FontAttributes="Bold"
+                                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </Grid>
+
+                        <Border Style="{StaticResource ContentCard}">
+                            <VerticalStackLayout Spacing="12">
+                                <Label Text="How the split works" FontSize="19" FontAttributes="Bold"
+                                       TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                                <Label x:Name="DetailBody" Text="" FontSize="16" LineHeight="1.45"
+                                       TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                                <Label Text="The left pane is an absolute Grid column; the right pane is a star column that takes the remaining space. A PanGestureRecognizer on the divider changes the left column's width as you drag."
+                                       FontSize="15" LineHeight="1.4"
+                                       TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </VerticalStackLayout>
+                </ScrollView>
+            </Grid>
+        </Grid>
+
+        <!-- ========================= Status bar ========================= -->
+        <Border Grid.Row="2" StrokeThickness="0" Padding="22,10"
+                BackgroundColor="{StaticResource PrimaryColor}">
+            <Label x:Name="StatusLabel" Text="" FontSize="14" TextColor="White" />
+        </Border>
+    </Grid>
+</ContentPage>

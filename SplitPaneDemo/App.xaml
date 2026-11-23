@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SplitPaneDemo.App">
+    <Application.Resources>
+        <ResourceDictionary>
+            <Color x:Key="PrimaryColor">#2F6FEB</Color>
+            <Color x:Key="AccentColor">#26A69A</Color>
+
+            <Color x:Key="PageBackgroundLight">#F4F6FA</Color>
+            <Color x:Key="PageBackgroundDark">#121212</Color>
+
+            <Color x:Key="HeaderBackgroundLight">#FFFFFF</Color>
+            <Color x:Key="HeaderBackgroundDark">#1E1E1E</Color>
+
+            <Color x:Key="LeftPaneBackgroundLight">#EBEFF6</Color>
+            <Color x:Key="LeftPaneBackgroundDark">#1A1A1A</Color>
+
+            <Color x:Key="RightPaneBackgroundLight">#FFFFFF</Color>
+            <Color x:Key="RightPaneBackgroundDark">#171717</Color>
+
+            <Color x:Key="CardBackgroundLight">#FFFFFF</Color>
+            <Color x:Key="CardBackgroundDark">#232323</Color>
+
+            <Color x:Key="TextPrimaryLight">#1B1F24</Color>
+            <Color x:Key="TextPrimaryDark">#FFFFFF</Color>
+            <Color x:Key="TextSecondaryLight">#5B6470</Color>
+            <Color x:Key="TextSecondaryDark">#A8B0BA</Color>
+
+            <!-- Divider chrome: the gutter, the rule and the grab handle -->
+            <Color x:Key="DividerGutterLight">#ECF0F7</Color>
+            <Color x:Key="DividerGutterDark">#20242C</Color>
+            <Color x:Key="DividerLineLight">#C7CFDB</Color>
+            <Color x:Key="DividerLineDark">#3A414D</Color>
+            <Color x:Key="DividerGripLight">#97A2B1</Color>
+            <Color x:Key="DividerGripDark">#5C6570</Color>
+
+            <Style x:Key="PresetButton" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=#E3E9F5, Dark=#2A303A}" />
+                <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}" />
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="HeightRequest" Value="40" />
+                <Setter Property="CornerRadius" Value="8" />
+                <Setter Property="Padding" Value="18,0" />
+            </Style>
+
+            <Style x:Key="PaneHeader" TargetType="Label">
+                <Setter Property="FontSize" Value="13" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="CharacterSpacing" Value="1.2" />
+                <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+            </Style>
+
+            <Style x:Key="StatCard" TargetType="Border">
+                <Setter Property="StrokeThickness" Value="0" />
+                <Setter Property="Padding" Value="16,14" />
+                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=#F6F8FC, Dark=#202020}" />
+                <Setter Property="StrokeShape">
+                    <Setter.Value>
+                        <RoundRectangle CornerRadius="12" />
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style x:Key="ContentCard" TargetType="Border">
+                <Setter Property="StrokeThickness" Value="0" />
+                <Setter Property="Padding" Value="20" />
+                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=#F6F8FC, Dark=#202020}" />
+                <Setter Property="StrokeShape">
+                    <Setter.Value>
+                        <RoundRectangle CornerRadius="12" />
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
