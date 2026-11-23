@@ -696,17 +696,19 @@ label.SetAppThemeColor(Label.TextColorProperty,
 
 ### Dialogs
 
-**DisplayAlert (using LinuxDialogService):**
+**Portable (recommended): use the MAUI API.** `DisplayAlert`, `DisplayActionSheet`
+and `DisplayPromptAsync` are implemented on Linux too, so a single code path works on
+every platform - no branching:
 
 ```csharp
 private async void OnDeleteClicked(object? sender, EventArgs e)
 {
-    var confirmed = await LinuxDialogService.ShowAlertAsync(
+    var confirmed = await DisplayAlert(
         "Delete Task",
         $"Are you sure you want to delete \"{_todo.Title}\"?",
         "Delete",
         "Cancel");
-    
+
     if (confirmed)
     {
         _service.DeleteTodo(_todo);
@@ -714,6 +716,50 @@ private async void OnDeleteClicked(object? sender, EventArgs e)
     }
 }
 ```
+
+**Linux-specific: `LinuxDialogService`.** OpenMaui also exposes its own dialog service
+(`Microsoft.Maui.Platform.LinuxDialogService.ShowAlertAsync` / `ShowPromptAsync` /
+`ShowActionSheetAsync`) to drive the Linux dialogs directly. Because the OpenMaui
+package is referenced **only for the Linux target**, a call to it must be guarded by a
+compile-time symbol - otherwise shared code will not compile for Android/iOS/Windows,
+where the type does not exist.
+
+Define the symbol for the Linux build in the `.csproj`:
+
+```xml
+<PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
+  <DefineConstants>$(DefineConstants);OPENMAUI_LINUX</DefineConstants>
+</PropertyGroup>
+```
+
+and wrap the call:
+
+```csharp
+private static Task<bool> ConfirmAsync(
+    Page page, string title, string message, string accept = "OK", string cancel = "Cancel")
+{
+#if OPENMAUI_LINUX
+    return Microsoft.Maui.Platform.LinuxDialogService.ShowAlertAsync(title, message, accept, cancel);
+#else
+    return page.DisplayAlert(title, message, accept, cancel);
+#endif
+}
+```
+
+Callers then stay platform-agnostic:
+
+```csharp
+if (await ConfirmAsync(this, "Delete Task", $"Delete \"{_todo.Title}\"?", "Delete"))
+{
+    _service.DeleteTodo(_todo);
+    await Navigation.PopAsync();
+}
+```
+
+> A runtime check alone (`OperatingSystem.IsLinux()`) is not enough here: the type is
+> absent from non-Linux builds, and Android also reports `IsLinux() == true`. The
+> compile-time symbol keeps the Linux-only branch out of the other builds.
+> `SplitPaneDemo` uses this pattern already.
 
 ### WebView
 
