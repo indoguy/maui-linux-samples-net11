@@ -3,28 +3,22 @@
 Sample applications demonstrating [OpenMaui Linux](https://github.com/open-maui/maui-linux) - .NET MAUI on Linux desktop with SkiaSharp rendering.
 
 > **This repository is based on [open-maui/maui-linux-samples](https://github.com/open-maui/maui-linux-samples),
-> updated to build and run on .NET 11.** See [NET11-MIGRATION.md](./NET11-MIGRATION.md)
-> for the full list of changes, and [ARCH-INSTALL.md](./ARCH-INSTALL.md) for setup.
+> updated to build and run on .NET 11.**
 
 ## Table of Contents
 
 - [Overview](#overview)
-- [Documentation](#documentation)
 - [Sample Applications](#sample-applications)
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Quick Start](#quick-start)
 - [Building and Deployment](#building-and-deployment)
+- [Using the OpenMaui source](#using-the-openmaui-source)
 - [Sample Details](#sample-details)
-  - [TodoApp](#todoapp)
-  - [ShellDemo](#shelldemo)
-  - [WebViewDemo](#webviewdemo)
-  - [BlazorDemo](#blazordemo)
-  - [MediaDemo](#mediademo)
-  - [MapsDemo](#mapsdemo)
 - [Project Structure](#project-structure)
 - [Development Guide](#development-guide)
 - [API Usage Examples](#api-usage-examples)
+- [Troubleshooting](#troubleshooting)
 - [Related Resources](#related-resources)
 - [Support](#support)
 - [License](#license)
@@ -36,24 +30,14 @@ This repository contains production-ready sample applications showcasing **OpenM
 **Key Features:**
 - Full .NET MAUI API compatibility
 - SkiaSharp-based rendering for high-performance graphics
-- X11 window management support
+- Native Wayland window management (preferred) with X11 / XWayland fallback
+- Fractional-scale / HiDPI aware (`wp_fractional_scale_v1`)
 - GTK integration for WebView and native dialogs
 - Light/Dark theme support with dynamic switching
 - Navigation (NavigationPage, Shell, push/pop)
 - Data binding and MVVM patterns
+- Gesture recognizers (tap, pan, pinch, swipe, drag & drop)
 - Comprehensive control coverage
-
-## Documentation
-
-Additional guides live at the repository root:
-
-| Document | Description |
-|----------|-------------|
-| [GUIDE.md](./GUIDE.md) | Full user guide: prerequisites, building, running, and common workflows |
-| [NET11-MIGRATION.md](./NET11-MIGRATION.md) | What changed to move every sample from .NET 10 to .NET 11 (project files, package versions, API renames) |
-| [ARCH-INSTALL.md](./ARCH-INSTALL.md) | Installing the .NET 11 SDK and OpenMaui on Arch Linux, with the `pacman` package list and troubleshooting |
-
-Each sample directory also contains its own `README.md` with sample-specific details.
 
 ## Sample Applications
 
@@ -65,6 +49,7 @@ Each sample directory also contains its own `README.md` with sample-specific det
 | [BlazorDemo](./BlazorDemo/) | Blazor Hybrid on Linux | BlazorWebView, Razor components, @onclick/@bind round trips, DI-injected services, UrlLoading |
 | [MediaDemo](./MediaDemo/) | Video / audio playback via MediaElement | CommunityToolkit.Maui.MediaElement on Linux, GStreamer backend, play/pause/stop/seek/volume/mute |
 | [MapsDemo](./MapsDemo/) | OpenStreetMap map view with pins, route, and shape overlays | Microsoft.Maui.Controls.Maps on Linux, OSM raster tile cache, Pin/Polyline/Polygon/Circle overlays, pan/zoom |
+| [SplitPaneDemo](./SplitPaneDemo/) | Resizable two-pane layout with a draggable divider | Grid split-pane, PanGestureRecognizer, absolute + star column sizing, preset widths, theme switching |
 
 ## Requirements
 
@@ -85,26 +70,30 @@ sudo dnf install fontconfig-devel freetype-devel
 sudo pacman -S --needed fontconfig freetype2 mesa harfbuzz
 
 # For WebView and BlazorWebView (WebViewDemo, BlazorDemo): WPE WebKit 2.54+
+sudo pacman -S --needed wpewebkit                                    # Arch (extra, 2.54.x)
 sudo apt-get install libwpewebkit-2.0-1                        # Debian sid / Ubuntu
 sudo dnf copr enable philn/wpewebkit && sudo dnf install wpewebkit   # Fedora (no official package)
 # Without WPE, WebViewDemo falls back to WebKitGTK in GTK mode:
+sudo pacman -S --needed gtk3 webkit2gtk-4.1   # Arch
 sudo apt-get install libwebkit2gtk-4.1-0    # Ubuntu/Debian
 sudo dnf install webkit2gtk4.1              # Fedora/RHEL
 
 # For MediaElement support (MediaDemo)
+# Arch Linux:
+sudo pacman -S --needed gst-plugins-good gst-plugins-bad gst-plugins-ugly gst-libav
 # Ubuntu/Debian:
 sudo apt-get install gstreamer1.0-plugins-good gstreamer1.0-plugins-bad \
                      gstreamer1.0-plugins-ugly gstreamer1.0-libav gstreamer1.0-vaapi
 # Fedora/RHEL:
 sudo dnf install gstreamer1-plugins-good gstreamer1-plugins-bad-free \
                  gstreamer1-plugins-ugly-free gstreamer1-libav gstreamer1-vaapi
-# (gstreamer1-vaapi enables hardware-accelerated decode on Intel/AMD GPUs;
-#  replace with the nvdec plugin for NVIDIA. Software decode works without either.)
-```
+# (the vaapi/nvdec plugins add hardware-accelerated decode; software decode works
+#  without them)
 
-> **Arch Linux:** [`ARCH-INSTALL.md`](./ARCH-INSTALL.md) has the complete `pacman`
-> package list, including WebView (WPE WebKit), MediaElement (GStreamer), and
-> printing (CUPS), plus .NET 11 install steps.
+# For CUPS printing (ShellDemo)
+sudo pacman -S --needed libcups              # Arch
+sudo apt-get install libcups2-dev            # Ubuntu/Debian
+```
 
 ## Installation
 
@@ -131,7 +120,7 @@ export PATH=$DOTNET_ROOT:$PATH
 ```
 
 > On Arch Linux the repositories currently ship .NET 10 only, so use the script
-> above — see [`ARCH-INSTALL.md`](./ARCH-INSTALL.md).
+> above to get the .NET 11 SDK.
 
 ### Verify Installation
 
@@ -200,6 +189,19 @@ A video player window will open with the Sintel trailer pre-loaded (Creative Com
 
 Note: requires GStreamer 1.x + the plugin packages listed under System Dependencies above. Hardware-accelerated decode kicks in automatically when `gstreamer1-vaapi` (Intel/AMD) or the nvdec plugin (NVIDIA) is installed.
 
+### Run SplitPaneDemo
+
+```bash
+cd ../SplitPaneDemo
+dotnet run
+```
+
+A two-pane mail layout opens with a draggable divider between the panes. You can:
+- Drag the vertical divider left/right to resize the panes
+- Jump to 25% / 50% / 75% / Reset with the header buttons
+- Select a folder on the left to update the right pane
+- Toggle between light and dark themes
+
 ## Building and Deployment
 
 ### Debug Build
@@ -255,357 +257,10 @@ EOF
 
 ## Sample Details
 
-### TodoApp
+Detailed write-ups for each sample - features, key files and code examples - live in
+**[SAMPLES.md](./SAMPLES.md)**.
 
-A complete task management application demonstrating production-ready patterns.
-
-**Features:**
-- **NavigationPage** with toolbar and back navigation
-- **CollectionView** with item selection and data templates
-- **XAML data binding** with INotifyPropertyChanged
-- **Value converters** for dynamic styling (alternating rows, completed tasks)
-- **DisplayAlert** dialogs for confirmations
-- **Theme switching** (Light/Dark) with AppThemeBinding
-- **Grid layouts** with star sizing
-- **Entry and Editor** for text input
-- **Alternating row colors** with theme support
-
-**Architecture:**
-- `TodoItem.cs` - Data model with property change notifications
-- `TodoService.cs` - Business logic with ObservableCollection
-- `TodoListPage.xaml` - Main list view with data templates
-- `TodoDetailPage.xaml` - Detail/edit view
-- `NewTodoPage.xaml` - Create new task view
-- Value converters for visual state management
-
-**Code Example - Data Binding:**
-
-```xaml
-<!-- TodoListPage.xaml -->
-<CollectionView ItemsSource="{Binding Todos}" SelectionMode="Single">
-    <CollectionView.ItemTemplate>
-        <DataTemplate>
-            <Grid Padding="15,10" 
-                  BackgroundColor="{Binding Index, Converter={StaticResource AlternatingRowColorConverter}}">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="4"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                
-                <!-- Status indicator -->
-                <BoxView Grid.Column="0" 
-                         BackgroundColor="{Binding IsCompleted, Converter={StaticResource CompletedToColorConverter}, ConverterParameter=indicator}"/>
-                
-                <!-- Task content -->
-                <VerticalStackLayout Grid.Column="1" Spacing="4">
-                    <Label Text="{Binding Title}" 
-                           FontSize="16"
-                           TextColor="{Binding IsCompleted, Converter={StaticResource CompletedToColorConverter}}"
-                           TextDecorations="{Binding IsCompleted, Converter={StaticResource CompletedToTextDecorationsConverter}}"/>
-                    <Label Text="{Binding Notes}" 
-                           FontSize="12"
-                           MaxLines="2"
-                           LineBreakMode="TailTruncation"
-                           TextColor="{Binding IsCompleted, Converter={StaticResource CompletedToColorConverter}, ConverterParameter=notes}"/>
-                </VerticalStackLayout>
-            </Grid>
-        </DataTemplate>
-    </CollectionView.ItemTemplate>
-</CollectionView>
-```
-
-**Logging:**
-Application logs are written to `~/todoapp.log` for debugging.
-
-### ShellDemo
-
-A comprehensive control gallery showcasing all supported MAUI controls with Shell navigation.
-
-**Features:**
-- **Shell navigation** with flyout menu
-- **All core controls**: Button, Entry, Editor, SearchBar, CheckBox, Switch, Slider, Stepper
-- **Pickers**: Picker, DatePicker, TimePicker
-- **CollectionView** with various data types and selection modes
-- **ProgressBar and ActivityIndicator**
-- **Grid layouts** with demonstrations of:
-  - Auto, Star, and Absolute sizing
-  - Row and column spanning
-  - Spacing and padding
-  - Mixed sizing strategies
-- **Real-time event logging** for all interactions
-- **Push/pop navigation** examples
-- **Theme switching** support
-- **Drag & drop** (XDND / Wayland data-device) with a drop zone, drag source, and event log
-- **Clipboard and primary selection** (middle-click paste buffer)
-- **System tray icon** (StatusNotifierItem / XEmbed) with menu actions
-- **CUPS printing**: printer enumeration, GTK print dialog, Skia-rendered test page
-
-**Navigation Structure:**
-
-```csharp
-// AppShell.xaml.cs - Shell with flyout menu
-public partial class AppShell : Shell
-{
-    public AppShell()
-    {
-        InitializeComponent();
-        
-        // Register routes for push navigation
-        Routing.RegisterRoute("detail", typeof(DetailPage));
-    }
-}
-```
-
-**Code Example - Grid Layouts:**
-
-```csharp
-// GridsPage.xaml.cs - Programmatic grid creation
-private View CreateStarSizingDemo()
-{
-    var grid = new Grid
-    {
-        ColumnDefinitions =
-        {
-            new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
-            new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) },
-            new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) }
-        }
-    };
-    
-    // Add cells with proportional sizing: 25% | 50% | 25%
-    grid.Children.Add(CreateCell("1*", "#BBDEFB"));
-    grid.Children.Add(CreateCell("2* (double)", "#C8E6C9"));
-    grid.Children.Add(CreateCell("1*", "#FFECB3"));
-    
-    return grid;
-}
-```
-
-**Logging:**
-Application logs are written to `~/shelldemo.log` for debugging.
-
-### WebViewDemo
-
-A web browser application demonstrating the WebView. With WPE WebKit installed the page is composited inside the Skia render tree and the app runs in native Wayland/X11 mode; without it the sample falls back to the GTK-hosted WebKitGTK view. `OPENMAUI_WEBVIEW=wpe|webkitgtk` forces a backend.
-
-**Features:**
-- **WebView** with full HTML5 support
-- **WPE WebKit** backend (WebKitGTK fallback), context menus, clipboard
-- **Navigation controls** (back, forward, reload)
-- **URL entry** with automatic https:// prefix
-- **JavaScript evaluation** via `EvaluateJavaScriptAsync`
-- **HTML content loading** from strings
-- **Progress indicator** with animations
-- **Theme switching** support
-- **GTK mode** for native WebView rendering
-
-**Important:** Requires GTK mode enabled in `Program.cs`:
-
-```csharp
-// WebViewDemo/Program.cs
-LinuxApplication.Run(app, args, options =>
-{
-    options.UseGtk = true;  // Required for WebView
-});
-```
-
-**Code Example - JavaScript Evaluation:**
-
-```csharp
-private async void OnEvalJsClicked(object? sender, EventArgs e)
-{
-    try
-    {
-        var result = await MainWebView.EvaluateJavaScriptAsync("document.title");
-        StatusLabel.Text = $"JS Result: {result ?? "(null)"}";
-    }
-    catch (Exception ex)
-    {
-        StatusLabel.Text = $"JS Error: {ex.Message}";
-    }
-}
-```
-
-**Code Example - Loading HTML:**
-
-```csharp
-private void OnLoadHtmlClicked(object? sender, EventArgs e)
-{
-    var html = @"
-<!DOCTYPE html>
-<html>
-<head>
-    <style>
-        body { font-family: Arial; margin: 40px; }
-        button { padding: 15px 30px; font-size: 1.1em; }
-    </style>
-</head>
-<body>
-    <h1>Hello from OpenMaui!</h1>
-    <button onclick=""alert('Hello from JavaScript!')"">Click Me!</button>
-</body>
-</html>";
-
-    MainWebView.Source = new HtmlWebViewSource { Html = html };
-}
-```
-
-**Logging:**
-Application logs are written to `~/webviewdemo.log` for debugging.
-
-### BlazorDemo
-
-Blazor Hybrid on Linux: a MAUI (Skia) toolbar above a `BlazorWebView` hosted in WPE WebKit, in native Wayland/X11 mode. Requires WPE WebKit 2.54+ and the `OpenMaui.Controls.Linux.Blazor` package (`.UseLinuxBlazorWebView()`).
-
-**Features:**
-- **Razor components** rendered by WebKit, served through the `app://localhost/` scheme
-- **Counter** (`@onclick`): JavaScript to .NET to JavaScript round trip
-- **Two-way binding** (`@bind`) on an input
-- **DI-injected .NET service** (`WeatherService`) consumed by a component
-- **External links** opened in the system browser through `UrlLoading`
-- **`BlazorWebViewInitialized`** surfacing in the MAUI toolbar
-
-```bash
-cd BlazorDemo
-dotnet build && ./run.sh
-```
-
-### MediaDemo
-
-A video and audio player demonstrating `CommunityToolkit.Maui.MediaElement` on Linux via the **OpenMaui.Controls.Linux.MediaElement** sibling package (GStreamer backend).
-
-**Features:**
-- **MediaElement** with full playback (play / pause / stop / seek)
-- **Position slider** with live time display, drag-to-seek
-- **Volume slider** + mute toggle
-- **URL entry** for loading arbitrary streams or local files (mp4, mkv, mp3, http/https, rtsp)
-- **Aspect-correct video rendering** in a Skia surface (AspectFit by default)
-- **Hardware-accelerated decode** via VAAPI / NVDEC when those GStreamer plugins are installed
-
-**Runtime requirements (Linux):**
-- GStreamer 1.x core (almost always preinstalled on desktop Linux)
-- Plugin sets: `gstreamer1-plugins-good`, `-bad-free`, `-ugly-free`, `-libav` (broad codec coverage)
-- Optional: `gstreamer1-vaapi` (Intel/AMD HW decode) or `gstreamer1-nvdec` (NVIDIA)
-
-See the **System Dependencies** section near the top of this README for distro-specific install commands.
-
-**Scrub-accuracy note:** For local files, seeks land frame-accurately. For HTTP-streamed sources, backward seeks can land 1–2 seconds off the requested position because the pipeline must re-request earlier byte ranges and decode-and-discard back to the target — this is a fundamental property of streaming over HTTP and matches the behavior of YouTube / Vimeo. Forward scrubs and click-to-position are typically accurate within a frame.
-
-**Important:** The sample's `MauiProgram.cs` opts in to the Linux backend explicitly. Cross-platform projects keep `.UseLinuxMediaElement()` in their builder chain — it's a safe no-op on Windows / Android / iOS / macCatalyst where the toolkit's own handlers serve the same MediaElement control:
-
-```csharp
-// MediaDemo/MauiProgram.cs
-builder
-    .UseMauiApp<App>()
-    .UseMauiCommunityToolkitMediaElement(isAndroidForegroundServiceEnabled: false)
-    .UseLinux()
-    .UseLinuxMediaElement();   // Linux backend; no-op elsewhere
-```
-
-**Code Example - playback controls:**
-
-```xaml
-<toolkit:MediaElement x:Name="Player"
-                      Aspect="AspectFit"
-                      Source="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_1MB.mp4"
-                      Volume="0.8" />
-```
-
-```csharp
-private void OnPlayClicked(object? sender, EventArgs e)  => Player.Play();
-private void OnPauseClicked(object? sender, EventArgs e) => Player.Pause();
-private void OnStopClicked(object? sender, EventArgs e)  => Player.Stop();
-
-private async void OnPositionDragCompleted(object? sender, EventArgs e)
-{
-    await Player.SeekTo(TimeSpan.FromSeconds(PositionSlider.Value));
-}
-```
-
-**Logging:**
-Application logs are written to `~/mediademo.log` for debugging.
-
-### MapsDemo
-
-A map view demonstrating `Microsoft.Maui.Controls.Maps` on Linux via the **OpenMaui.Controls.Linux.Maps** sibling package. Renders OpenStreetMap raster tiles in SkiaSharp.
-
-**Features:**
-- **`<maps:Map>` cross-platform XAML** — same control as Apple Maps / Google Maps / Bing on the other platforms
-- **OpenStreetMap raster tiles** fetched from `tile.openstreetmap.org` and cached under `$XDG_CACHE_HOME/openmaui/osm-tiles`
-- **Six pins** placed on major Asian capitals (Tokyo, Seoul, Beijing, Hanoi, Bangkok, Singapore)
-- **Polyline overlay** tracing the Trans-Siberian Railway approximation (Moscow → Yekaterinburg → Novosibirsk → Irkutsk → Vladivostok)
-- **Polygon overlay** outlining Central Park, New York, with a semi-transparent fill and visible stroke
-- **Circle overlay** — a 5 km radius (`Distance.FromKilometers`) around central Paris, semi-transparent fill + stroke
-- **Runtime overlay toggles** — Add/Remove Polygon and Add/Remove Circle buttons mutate `Map.MapElements` on the fly, exercising the handler's element change-notification path
-- **Pan and zoom** with mouse drag + scroll wheel; zoom toward cursor position
-- **Quick-jump buttons** to Paris / London / New York / Tokyo / Singapore / Sydney / Full World
-- **Attribution overlay** rendered per the OSM tile usage policy
-
-**Runtime requirements (Linux):**
-- Internet access to `tile.openstreetmap.org` for the first view of each tile (subsequent views serve from disk cache)
-- No native libraries beyond what the main `OpenMaui.Controls.Linux` package already requires
-
-**Cross-platform note:** Like MediaDemo, the same `MauiProgram.cs` works on every platform — the Linux opt-in lines are no-ops elsewhere where the platform-native Maps backend serves the same control:
-
-```csharp
-// MapsDemo/MauiProgram.cs
-builder
-    .UseMauiApp<App>()
-    .UseMauiMaps()       // upstream MAUI Maps
-    .UseLinux()          // base Linux handlers
-    .UseLinuxMaps();     // Linux Maps backend (OSM); no-op elsewhere
-```
-
-**Code example — pin, route, polygon + circle:**
-
-```xaml
-<maps:Map x:Name="Map" IsScrollEnabled="True" IsZoomEnabled="True" />
-```
-
-```csharp
-Map.Pins.Add(new Pin
-{
-    Label = "Tokyo",
-    Location = new Location(35.6762, 139.6503),
-    Type = PinType.Place,
-});
-
-var route = new Polyline { StrokeColor = Color.FromArgb("#1976D2"), StrokeWidth = 4 };
-route.Geopath.Add(new Location(55.7558, 37.6173));  // Moscow
-route.Geopath.Add(new Location(43.1198, 131.8869)); // Vladivostok
-Map.MapElements.Add(route);
-
-// Filled polygon — Geopath closes automatically
-var park = new Polygon
-{
-    FillColor = Color.FromArgb("#4D2E7D32"),   // semi-transparent green
-    StrokeColor = Color.FromArgb("#2E7D32"),
-    StrokeWidth = 3,
-};
-park.Geopath.Add(new Location(40.7677, -73.9816)); // Central Park SW
-park.Geopath.Add(new Location(40.8003, -73.9580)); // NW
-park.Geopath.Add(new Location(40.7969, -73.9494)); // NE
-park.Geopath.Add(new Location(40.7642, -73.9730)); // SE
-Map.MapElements.Add(park);
-
-// Circle — Radius is a ground distance, so it scales with zoom
-Map.MapElements.Add(new Circle
-{
-    Center = new Location(48.8566, 2.3522),    // Paris
-    Radius = Distance.FromKilometers(5),
-    FillColor = Color.FromArgb("#40E64A19"),   // semi-transparent orange
-    StrokeColor = Color.FromArgb("#E64A19"),
-    StrokeWidth = 3,
-});
-
-Map.MoveToRegion(MapSpan.FromCenterAndRadius(
-    new Location(45, 100), Distance.FromKilometers(5000)));
-```
-
-**Customizing the tile source:** OSM's tile policy throttles heavy traffic. Apps that produce significant load should swap to a self-hosted or commercial tile server by overriding `OsmTileService.Default.UrlTemplate` (uses `{z}/{x}/{y}` placeholders) early in startup.
-
-**Logging:**
-Application logs are written to `~/mapsdemo.log` for debugging.
+[TodoApp](./SAMPLES.md#todoapp)  ·  [ShellDemo](./SAMPLES.md#shelldemo)  ·  [WebViewDemo](./SAMPLES.md#webviewdemo)  ·  [BlazorDemo](./SAMPLES.md#blazordemo)  ·  [MediaDemo](./SAMPLES.md#mediademo)  ·  [MapsDemo](./SAMPLES.md#mapsdemo)  ·  [SplitPaneDemo](./SAMPLES.md#splitpanedemo)
 
 ## Project Structure
 
@@ -645,17 +300,76 @@ All samples use conditional compilation for cross-platform support:
     <RuntimeIdentifiers>linux-x64;linux-arm64</RuntimeIdentifiers>
   </PropertyGroup>
 
-  <!-- Local development -->
-  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Linux')) AND Exists('../../maui-linux/OpenMaui.Controls.Linux.csproj')">
-    <ProjectReference Include="../../maui-linux/OpenMaui.Controls.Linux.csproj" />
-  </ItemGroup>
-
-  <!-- CI/CD or standalone -->
-  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Linux')) AND !Exists('../../maui-linux/OpenMaui.Controls.Linux.csproj')">
+  <!-- OpenMaui Linux platform (NuGet package) -->
+  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
     <PackageReference Include="OpenMaui.Controls.Linux" Version="11.0.10.2" />
   </ItemGroup>
 </Project>
 ```
+
+> The samples always use the OpenMaui **NuGet package**. To build and debug against
+> the OpenMaui source code instead, see
+> [Using the OpenMaui source](#using-the-openmaui-source).
+
+## Using the OpenMaui source
+
+The samples reference OpenMaui as a **NuGet package**, and that package ships no
+`.pdb` or SourceLink data - so you cannot step into the framework from it. To build
+and debug *into* OpenMaui's own code, attach the source instead.
+
+**1. Clone the framework next to this repo**, into a folder named `maui-linux`:
+
+```bash
+cd ..                                        # parent of maui-linux-samples-net11
+git clone https://github.com/open-maui/maui-linux.git
+```
+
+> The revision that produced the referenced package is recorded in its `.nuspec`.
+> For `OpenMaui.Controls.Linux 11.0.10.2` that is commit `95ff85e`, so
+> `git -C ../maui-linux checkout 95ff85e` gives a matching source tree.
+
+**2. Swap the package for project references** in the sample's `.csproj`:
+
+```diff
+- <!-- OpenMaui Linux Platform - NuGet package -->
+- <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
+-   <PackageReference Include="OpenMaui.Controls.Linux" Version="11.0.10.2" />
+- </ItemGroup>
++ <!-- OpenMaui Linux Platform - local source -->
++ <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
++   <ProjectReference Include="../../maui-linux/OpenMaui.Controls.Linux.csproj" />
++ </ItemGroup>
+```
+
+Samples that also use a companion package need its source project as well:
+
+| Sample | Project references to add |
+|--------|---------------------------|
+| `ShellDemo`, `TodoApp`, `WebViewDemo`, `SplitPaneDemo` | `OpenMaui.Controls.Linux` |
+| `BlazorDemo` | that plus `Blazor/OpenMaui.Controls.Linux.Blazor.csproj` |
+| `MapsDemo` | that plus `Maps/OpenMaui.Controls.Linux.Maps.csproj` |
+| `MediaDemo` | that plus `MediaElement/OpenMaui.Controls.Linux.MediaElement.csproj` |
+
+**3. Import the source build targets** (the package's targets do not come along with
+a project reference). Add this to the same `.csproj`:
+
+```xml
+<Import Project="../../maui-linux/build/OpenMaui.Controls.Linux.targets"
+        Condition="$([MSBuild]::IsOSPlatform('Linux')) AND Exists('../../maui-linux/build/OpenMaui.Controls.Linux.targets')" />
+```
+
+**4. Build and debug.** `dotnet build` now compiles OpenMaui from source, and F5
+steps into it (set `"justMyCode": false` if the debugger skips it). Optionally add the
+framework projects to the solution:
+
+```bash
+dotnet sln add ../maui-linux/OpenMaui.Controls.Linux.csproj \
+               ../maui-linux/Hosting.Abstractions/OpenMaui.Hosting.csproj \
+               ../maui-linux/Blazor/OpenMaui.Controls.Linux.Blazor.csproj
+```
+
+These edits are local to your checkout - keep them out of commits to leave the
+repository package-only.
 
 ## Development Guide
 
@@ -765,6 +479,63 @@ var multiWriter = new MultiTextWriter(Console.Out, logWriter);
 Console.SetOut(multiWriter);
 Console.SetError(multiWriter);
 ```
+
+### Debugging in VS Code
+
+`.vscode/` is git-ignored, so create the launch configuration yourself. The simplest
+way to avoid the apphost runtime problem entirely is to launch the managed `.dll`
+rather than the native apphost: the `dotnet` host finds its own runtime, so it does
+not need `DOTNET_ROOT`.
+
+Without this, a debug session launches the native .NET **apphost**
+(`bin/<Config>/net11.0/<Name>`), which finds the runtime only via `DOTNET_ROOT`,
+`/etc/dotnet/install_location(_x64)`, or `/usr/share/dotnet` — **not** `PATH`. On a
+per-user SDK under `~/.dotnet` that fails with:
+
+```
+You must install .NET to run this application. ... DOTNET_ROOT = <not set>
+The program '... SplitPaneDemo' has exited with code 131 (0x83).
+```
+
+Create `.vscode/launch.json` (swap the sample path for other samples):
+
+```jsonc
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "SplitPaneDemo (dotnet)",
+      "type": "coreclr",
+      "request": "launch",
+      "program": "${workspaceFolder}/SplitPaneDemo/bin/Debug/net11.0/SplitPaneDemo.dll",
+      "cwd": "${workspaceFolder}/SplitPaneDemo",
+      "console": "internalConsole"
+    }
+  ]
+}
+```
+
+If you instead run the apphost as `program`, add an `env` block so it can find the SDK:
+
+```jsonc
+"env": {
+  "DOTNET_ROOT": "${env:HOME}/.dotnet",
+  "PATH": "${env:HOME}/.dotnet:${env:PATH}"
+}
+```
+
+For a permanent, launcher-independent fix, register the install location:
+
+```bash
+# machine-wide (needs root) - the apphost reads this file directly
+echo "$HOME/.dotnet" | sudo tee /etc/dotnet/install_location_x64
+
+# or per-user, no root (applies to GUI apps at next login)
+mkdir -p ~/.config/environment.d
+printf 'DOTNET_ROOT=%s\n' "$HOME/.dotnet" > ~/.config/environment.d/10-dotnet.conf
+```
+
+See [Troubleshooting](#troubleshooting).
 
 ## API Usage Examples
 
@@ -981,6 +752,35 @@ private void OnNavigated(object? sender, WebNavigatedEventArgs e)
     Console.WriteLine($"Navigated: {e.Result} - {e.Url}");
 }
 ```
+
+## Troubleshooting
+
+**The app exits with "You must install .NET to run this application" (exit code 131).**
+The app runs through the generated .NET **apphost**, which finds the runtime only via
+`DOTNET_ROOT`, `/etc/dotnet/install_location(_x64)`, or `/usr/share/dotnet` - never
+`PATH`. With a per-user SDK under `~/.dotnet`, register the location once (needs root):
+
+```bash
+echo "$HOME/.dotnet" | sudo tee /etc/dotnet/install_location_x64
+```
+
+Running `dotnet run`, or the `.dll` through the `dotnet` host, works without it. See
+[Debugging in VS Code](#debugging-in-vs-code) for the launch-profile details.
+
+**BlazorDemo / WebViewDemo show a blank view.** They need **WPE WebKit 2.54+**
+(`libWPEWebKit-2.0`): `sudo pacman -S wpewebkit` (Arch) or
+`sudo apt-get install libwpewebkit-2.0-1` (Debian sid / Ubuntu). Without it, BlazorDemo
+skips the web view (its status bar stays at "Blazor: starting"), and WebViewDemo falls
+back to GTK mode via `OPENMAUI_WEBVIEW=webkitgtk` with `gtk3` + `webkit2gtk-4.1`.
+
+**MediaDemo has no picture or sound.** Install the GStreamer plugin sets from
+[Requirements](#requirements).
+
+**MapsDemo is blank.** It fetches OpenStreetMap tiles from `tile.openstreetmap.org`, so
+the first view of each tile needs internet access.
+
+**NuGet restore fails.** `NuGet.config` maps `OpenMaui.*` packages to the
+`git.marketally.ai` feed; check the URL is reachable and matches `NuGet.config`.
 
 ## Related Resources
 
