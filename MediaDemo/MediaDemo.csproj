@@ -33,14 +33,8 @@
     <PackageReference Include="CommunityToolkit.Maui.MediaElement" Version="12.0.0" />
   </ItemGroup>
 
-  <!-- OpenMaui Linux Platform - Local development (ProjectReference) -->
-  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Linux')) AND Exists('../../maui-linux/OpenMaui.Controls.Linux.csproj') AND '$(UsePackageReference)' != 'true'">
-    <ProjectReference Include="../../maui-linux/OpenMaui.Controls.Linux.csproj" />
-    <ProjectReference Include="../../maui-linux/MediaElement/OpenMaui.Controls.Linux.MediaElement.csproj" />
-  </ItemGroup>
-
-  <!-- OpenMaui Linux Platform - CI/CD builds (PackageReference) -->
-  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Linux')) AND (!Exists('../../maui-linux/OpenMaui.Controls.Linux.csproj') OR '$(UsePackageReference)' == 'true')">
+  <!-- OpenMaui Linux Platform - NuGet package -->
+  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
     <PackageReference Include="OpenMaui.Controls.Linux" Version="11.0.10.2" />
     <PackageReference Include="OpenMaui.Controls.Linux.MediaElement" Version="11.0.10.2" />
   </ItemGroup>

@@ -18,3 +18,7 @@ packages/
 # OS / editor cruft
 .DS_Store
 Thumbs.db
+.vscode/
+
+# MSBuild SDK resolver scratch files (left behind by some tooling)
+*.SdkResolver.*.proj.Backup.tmp
