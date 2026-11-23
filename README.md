@@ -991,7 +991,7 @@ private void OnNavigated(object? sender, WebNavigatedEventArgs e)
 
 ## Support
 
-If you find this .NET 11 port useful, consider supporting its maintainer:
+If you find this .NET 11 port useful, you can buy me a coffee:
 
 <a href="https://buymeacoffee.com/indoguy" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="40"></a>
 
