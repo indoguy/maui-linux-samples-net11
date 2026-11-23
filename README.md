@@ -2,6 +2,10 @@
 
 Sample applications demonstrating [OpenMaui Linux](https://github.com/open-maui/maui-linux) - .NET MAUI on Linux desktop with SkiaSharp rendering.
 
+> **This repository is based on [open-maui/maui-linux-samples](https://github.com/open-maui/maui-linux-samples),
+> updated to build and run on .NET 11.** See [NET11-MIGRATION.md](./NET11-MIGRATION.md)
+> for the full list of changes, and [ARCH-INSTALL.md](./ARCH-INSTALL.md) for setup.
+
 ## Table of Contents
 
 - [Overview](#overview)
@@ -106,8 +110,8 @@ sudo dnf install gstreamer1-plugins-good gstreamer1-plugins-bad-free \
 ### Clone the Repository
 
 ```bash
-git clone https://github.com/indoguy/maui-linux-samples-net11.git
-cd maui-linux-samples-net11
+git clone https://github.com/indoguy/maui-linux-samples.git
+cd maui-linux-samples
 ```
 
 ### Install .NET SDK
