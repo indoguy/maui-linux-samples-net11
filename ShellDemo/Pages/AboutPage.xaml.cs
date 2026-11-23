@@ -15,7 +15,7 @@ public partial class AboutPage : ContentPage
     {
         try
         {
-            await Microsoft.Maui.Platform.Linux.Services.Browser.OpenAsync("https://www.openmaui.net", BrowserLaunchMode.SystemPreferred);
+            await Microsoft.Maui.ApplicationModel.Browser.Default.OpenAsync("https://www.openmaui.net", BrowserLaunchMode.SystemPreferred);
         }
         catch (Exception ex)
         {

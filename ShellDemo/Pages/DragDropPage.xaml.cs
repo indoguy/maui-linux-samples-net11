@@ -4,8 +4,8 @@ using Microsoft.Maui.Controls;
 using Microsoft.Maui.Graphics;
 using Microsoft.Maui.Platform.Linux.Services;
 using SkiaSharp;
-using LinuxDragEventArgs = Microsoft.Maui.Platform.Linux.Services.DragEventArgs;
-using LinuxDropEventArgs = Microsoft.Maui.Platform.Linux.Services.DropEventArgs;
+using LinuxDragEventArgs = Microsoft.Maui.Platform.Linux.Services.LinuxDragEventArgs;
+using LinuxDropEventArgs = Microsoft.Maui.Platform.Linux.Services.LinuxDropEventArgs;
 using MauiClipboard = Microsoft.Maui.ApplicationModel.DataTransfer.Clipboard;
 
 namespace ShellDemo;
