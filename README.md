@@ -111,8 +111,8 @@ sudo dnf install gstreamer1-plugins-good gstreamer1-plugins-bad-free \
 ### Clone the Repository
 
 ```bash
-git clone https://github.com/indoguy/maui-linux-samples.git
-cd maui-linux-samples
+git clone https://github.com/indoguy/maui-linux-samples-net11.git
+cd maui-linux-samples-net11
 ```
 
 ### Install .NET SDK

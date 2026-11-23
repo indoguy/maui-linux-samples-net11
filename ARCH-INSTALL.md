@@ -251,8 +251,8 @@ required is missing.
 ## 5. Build and run the samples in this repo
 
 ```bash
-git clone https://github.com/indoguy/maui-linux-samples.git
-cd maui-linux-samples
+git clone https://github.com/indoguy/maui-linux-samples-net11.git
+cd maui-linux-samples-net11
 
 cd ShellDemo          # or TodoApp, MapsDemo, MediaDemo, BlazorDemo, WebViewDemo
 dotnet build          # output: bin/Debug/net11.0/
