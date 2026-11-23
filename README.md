@@ -26,6 +26,7 @@ Sample applications demonstrating [OpenMaui Linux](https://github.com/open-maui/
 - [Development Guide](#development-guide)
 - [API Usage Examples](#api-usage-examples)
 - [Related Resources](#related-resources)
+- [Support](#support)
 - [License](#license)
 
 ## Overview
@@ -990,9 +991,9 @@ private void OnNavigated(object? sender, WebNavigatedEventArgs e)
 
 ## Support
 
-If you find OpenMaui useful, consider supporting the developer:
+If you find this .NET 11 port useful, consider supporting its maintainer:
 
-<a href="https://buymeacoffee.com/logikonline" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="40"></a>
+<a href="https://buymeacoffee.com/indoguy" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="40"></a>
 
 ## License
 
